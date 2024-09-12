@@ -12,7 +12,7 @@ const SearchForm = ({ onSearch }) => {
     */
 
     onSearch(input);
-    setInput("");
+    // setInput("");
   };
 
   return (
