@@ -1,7 +1,9 @@
 import { ListItem, IconButton, ListItemText } from "@mui/material";
 import { Undo } from "@mui/icons-material";
+import moment from "moment";
 
 const SearchItem = ({ task, onEdit }) => {
+  const formattedDate = moment(task.id).format("YYYY-MM-DD HH:mm");
   return (
     <ListItem
       secondaryAction={
@@ -12,9 +14,11 @@ const SearchItem = ({ task, onEdit }) => {
         </>
       }
     >
-      <ListItemText primary={task.text} />
+      <ListItemText primary={task.text} secondary={formattedDate} />
     </ListItem>
   );
 };
 
 export default SearchItem;
+
+// “YYYY-MM-DD HH:mm

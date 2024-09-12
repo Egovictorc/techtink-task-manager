@@ -6,7 +6,11 @@ const SearchForm = ({ onSearch }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input) return;
+    /*
+    line below prevents the form from showing all competed fields when no input is enetered
+    // if (!input) return;
+    */
+
     onSearch(input);
     setInput("");
   };

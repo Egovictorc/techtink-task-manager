@@ -6,8 +6,23 @@ import TaskItem from "./components/TaskItem";
 import SearchForm from "./components/SearchForm";
 import SearchItem from "./components/SearchItem";
 
+
+
+type TaskProp = {
+  id: number,
+  text: string,
+  completed: boolean,
+  // onEdit: (input: String) => void,
+  // onDelete: (input: String) => void,
+  // onComplete: (input: String) => void,
+}
+
+
 export default function Home() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState<TaskProp[]>([]);
+  const [filteredTasks, setFilteredTasks] = useState<TaskProp[]>([]);
+
+
 
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -30,7 +45,7 @@ export default function Home() {
   const toggleComplete = (taskId) => {
     setTasks(
       tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
+        task.id === taskId ? { ...task, completed: !task.completed, id: Date.now() } : task
       )
     );
   };
@@ -40,11 +55,38 @@ export default function Home() {
     if (newText) {
       setTasks(
         tasks.map((task) =>
-          task.id === taskId ? { ...task, text: newText } : task
+          task.id === taskId ? { ...task, text: newText, } : task
         )
       );
     }
   };
+
+  const handleSearch = (searchTerm: string) => {
+    if (searchTerm.length != 0) {
+      // get completed tasks
+      let completedTasks = tasks.filter(({ completed }) => completed);
+      let pendingTasks = tasks.filter(({ completed }) => !completed);
+      // search for searchTerm through completedTasks
+      let matchedTasks = completedTasks.filter(({ text }) => text.includes(searchTerm));
+      setFilteredTasks(matchedTasks);
+    } else {
+      setFilteredTasks([]);
+    }
+  }
+
+  const undoCompleted = (taskId: number) => {
+    const confirmMessage = prompt("Type yes to undo completed task", "no");
+
+    if (confirmMessage.trim().toLocaleLowerCase() === "yes") {
+      setTasks((prevTasks) => prevTasks.map((task) => {
+        if (task.id == taskId) {
+          return { ...task, completed: !task.completed };
+        }
+        return task;
+      }))
+    }
+  }
+
 
   return (
     <Box
@@ -67,7 +109,7 @@ export default function Home() {
         >
           <TaskForm onAdd={addTask} />
           <List>
-            {tasks.map((task) => (
+            {tasks.filter(({ completed }) => !completed).map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}
@@ -91,10 +133,12 @@ export default function Home() {
             padding: "20px",
           }}
         >
-          <SearchForm onSearch={addTask} />
+          {/* <SearchForm onSearch={addTask} /> */}
+          <SearchForm onSearch={handleSearch} />
           <List>
-            {tasks.map((task) => (
-              <SearchItem key={task.id} task={task} onEdit={editTask} />
+            {(filteredTasks.length != 0 ? filteredTasks : tasks.filter(({ completed }) => completed)).map((task) => (
+              <SearchItem key={task.id} task={task} onEdit={undoCompleted} />
+              // <SearchItem key={task.id} task={task} onEdit={editTask} />
             ))}
           </List>
         </Box>
